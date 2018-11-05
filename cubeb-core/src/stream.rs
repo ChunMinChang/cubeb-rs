@@ -50,6 +50,7 @@ bitflags! {
     pub struct StreamPrefs: ffi::cubeb_stream_prefs {
         const NONE = ffi::CUBEB_STREAM_PREF_NONE;
         const LOOPBACK = ffi::CUBEB_STREAM_PREF_LOOPBACK;
+        // const DISABLE_DEVICE_SWITCHING = ffi::CUBEB_STREAM_PREF_DISABLE_DEVICE_SWITCHING;
     }
 }
 
@@ -307,10 +308,26 @@ mod tests {
 
     #[test]
     fn stream_params_raw_prefs() {
-        let mut raw: super::ffi::cubeb_stream_params = unsafe { mem::zeroed() };
-        raw.prefs = super::ffi::CUBEB_STREAM_PREF_LOOPBACK;
-        let params = unsafe { StreamParamsRef::from_ptr(&mut raw) };
-        assert_eq!(params.prefs(), StreamPrefs::LOOPBACK);
+        use std::collections::HashMap;
+        let mut prefs = HashMap::new();
+        prefs.insert(
+            super::ffi::CUBEB_STREAM_PREF_NONE,
+            StreamPrefs::NONE
+        );
+        prefs.insert(
+            super::ffi::CUBEB_STREAM_PREF_LOOPBACK,
+            StreamPrefs::LOOPBACK
+        );
+        // prefs.insert(
+        //     super::ffi::CUBEB_STREAM_PREF_DISABLE_DEVICE_SWITCHING,
+        //     StreamPrefs::DISABLE_DEVICE_SWITCHING
+        // );
+        for (raw_prefs, params_prefs) in prefs {
+            let mut raw: super::ffi::cubeb_stream_params = unsafe { mem::zeroed() };
+            raw.prefs = raw_prefs;
+            let params = unsafe { StreamParamsRef::from_ptr(&mut raw) };
+            assert_eq!(params.prefs(), params_prefs);
+        }
     }
 
     #[test]

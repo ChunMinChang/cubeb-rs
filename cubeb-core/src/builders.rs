@@ -251,9 +251,12 @@ mod tests {
 
     #[test]
     fn stream_params_builder_prefs() {
-        let params = StreamParamsBuilder::new()
-            .prefs(StreamPrefs::LOOPBACK)
-            .take();
-        assert_eq!(params.prefs(), StreamPrefs::LOOPBACK);
+        let prefs = [StreamPrefs::LOOPBACK, /*StreamPrefs::DISABLE_DEVICE_SWITCHING*/];
+        for pref in prefs.iter() {
+            let params = StreamParamsBuilder::new()
+                .prefs(*pref)
+                .take();
+            assert_eq!(params.prefs(), *pref);
+        }
     }
 }
